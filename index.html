@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#14110e" />
+    <title>오늘은 생일</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      html,
+      body {
+        margin: 0;
+        background: #3a3128;
+      }
+      #dock,
+      #top,
+      #sound {
+        opacity: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="view"></div>
+    <div id="vignette"></div>
+    <header id="top">
+      <h1>오늘은 생일</h1>
+      <p id="role"></p>
+      <p id="date"></p>
+      <p id="count"></p>
+      <p id="yesterday"></p>
+      <p id="hint">WASD로 걷기 · 스페이스로 멈추기 · 바닥 클릭으로 이동 · 드래그로 상하좌우 둘러보기 · 방 안에서도 같아요</p>
+    </header>
+    <div id="toasts"></div>
+    <button id="sound" type="button">소리 켜짐</button>
+    <div id="gate">
+      <div class="gate-card">
+        <p class="kicker" id="gate-date"></p>
+        <h1>오늘은 생일</h1>
+        <p id="gate-copy">들어가기 전에 오늘을 정해요.<br />한 번 정하면 오늘은 바뀌지 않아요.</p>
+        <label class="gate-name">
+          <span>오늘의 이름</span>
+          <input id="gate-name" type="text" maxlength="12" autocomplete="off" placeholder="오늘의 이름" />
+        </label>
+        <div class="gate-looks">
+          <span>오늘의 모습</span>
+          <div id="gate-looks"></div>
+        </div>
+        <div class="gate-actions">
+          <button id="enter-birthday" type="button">오늘은 내 생일이에요</button>
+          <button id="enter-guest" type="button">축하하러 왔어요</button>
+        </div>
+        <p class="gate-note">가입은 없어요. 이름은 오늘 이 홀에서만 쓰여요.</p>
+      </div>
+    </div>
+    <section id="dock">
+      <button id="dock-fold" type="button">접기</button>
+      <div class="dock-body">
+        <section class="pane" data-pane="guide">
+          <p class="kicker" id="dock-kicker"></p>
+          <h2 id="dock-title"></h2>
+          <p class="sub" id="dock-sub"></p>
+          <p class="room-note" id="dock-note" hidden></p>
+          <div id="dock-guide"></div>
+        </section>
+        <section class="pane" data-pane="wish">
+          <p class="pane-label">축하</p>
+          <ul class="wishes" id="dock-wishes"></ul>
+          <div id="dock-wish"></div>
+        </section>
+        <section class="pane" data-pane="rooms">
+          <p class="pane-label">방</p>
+          <div id="dock-rooms"></div>
+        </section>
+      </div>
+    </section>
+    <nav id="tabbar" aria-label="하단 메뉴">
+      <button type="button" data-tab="guide">안내</button>
+      <button type="button" data-tab="wish">축하</button>
+      <button type="button" data-tab="rooms">방</button>
+    </nav>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
