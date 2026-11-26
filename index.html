@@ -11,15 +11,18 @@
       href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&display=swap"
       rel="stylesheet"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+    />
     <style>
       html,
       body {
         margin: 0;
-        background: #3a3128;
+        background: #161014;
       }
       #dock,
-      #top,
-      #sound {
+      #chrome {
         opacity: 0;
       }
     </style>
@@ -27,34 +30,179 @@
   <body>
     <div id="view"></div>
     <div id="vignette"></div>
-    <header id="top">
-      <h1>오늘은 생일</h1>
-      <p id="role"></p>
-      <p id="date"></p>
-      <p id="count"></p>
-      <p id="yesterday"></p>
-      <p id="hint">WASD로 걷기 · 스페이스로 멈추기 · 바닥 클릭으로 이동 · 드래그로 상하좌우 둘러보기 · 방 안에서도 같아요</p>
-    </header>
     <div id="toasts"></div>
-    <button id="sound" type="button">소리 켜짐</button>
+    <div id="board-read" hidden>
+      <div class="board-read-card" role="dialog" aria-modal="true" aria-labelledby="board-read-kicker">
+        <p id="board-read-kicker">화이트보드</p>
+        <p id="board-read-text"></p>
+        <button id="board-read-close" type="button">닫기</button>
+      </div>
+    </div>
+    <header id="chrome">
+      <button id="back" type="button" aria-label="입장으로">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6.5 9 12l5.5 5.5" /></svg>
+      </button>
+      <button id="yard" type="button" aria-haspopup="dialog" aria-expanded="false">마당 1</button>
+      <div class="chrome-audio">
+      <button id="sound" type="button" aria-label="소리 켜짐" data-on="1">
+        <svg class="sound-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10h3.2L12 6.2v11.6L7.2 14H4z" /><path d="M15.2 9.2a4 4 0 0 1 0 5.6M17.6 7a7 7 0 0 1 0 10" /></svg>
+        <svg class="sound-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10h3.2L12 6.2v11.6L7.2 14H4z" /><path d="m16 10 4 4M20 10l-4 4" /></svg>
+      </button>
+      </div>
+    </header>
+    <div id="listener" hidden>
+      <div class="listener-card" role="dialog" aria-label="재생">
+        <div class="yards-head">
+          <b id="listener-title">이 방의 음악</b>
+          <button id="listener-close" type="button" aria-label="닫기">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17" /></svg>
+          </button>
+        </div>
+        <div id="listener-stage">
+          <img id="listener-cover" alt="" hidden />
+          <div id="listener-yt" hidden></div>
+        </div>
+        <p id="listener-help">고른 곡은 나에게만 들립니다.</p>
+        <ul id="listener-list"></ul>
+        <div class="track-actions">
+          <button id="listener-toggle" class="track-commit" type="button">일시중지</button>
+          <button id="listener-room" type="button">방 음악으로</button>
+        </div>
+      </div>
+    </div>
+    <div id="picklike-list" hidden>
+      <iframe id="picklike-list-frame" title="목록"></iframe>
+    </div>
+    <div id="picklike-player" hidden>
+      <iframe id="picklike-player-frame" title="재생" allow="autoplay; encrypted-media; fullscreen; picture-in-picture"></iframe>
+      <div class="player-edge" data-edge="left" aria-hidden="true"></div>
+      <div class="player-edge" data-edge="right" aria-hidden="true"></div>
+      <div class="player-edge" data-edge="bottom" aria-hidden="true"></div>
+      <div class="player-edge" data-edge="top-left" aria-hidden="true"></div>
+      <div class="player-edge" data-edge="top-right" aria-hidden="true"></div>
+      <div class="player-edge" data-edge="bottom-left" aria-hidden="true"></div>
+      <div class="player-edge" data-edge="bottom-right" aria-hidden="true"></div>
+    </div>
+    <div id="account" hidden>
+      <div class="login-card" role="dialog" aria-label="로그인">
+        <div class="login-head">
+          <b id="account-title">로그인</b>
+          <button id="account-close" type="button" aria-label="닫기">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
+          </button>
+        </div>
+        <p id="account-line" hidden></p>
+        <button id="account-google" type="button">
+          <svg viewBox="0 0 18 18" aria-hidden="true"><path fill="#4285F4" d="M17.6 9.2c0-.6-.1-1.2-.2-1.8H9v3.4h4.8a4.1 4.1 0 0 1-1.8 2.7v2.2h2.9c1.7-1.6 2.7-3.9 2.7-6.5Z"/><path fill="#34A853" d="M9 18c2.4 0 4.5-.8 6-2.2l-2.9-2.2c-.8.6-1.9.9-3.1.9-2.4 0-4.4-1.6-5.1-3.8H.9v2.3A9 9 0 0 0 9 18Z"/><path fill="#FBBC05" d="M3.9 10.7A5.4 5.4 0 0 1 3.6 9c0-.6.1-1.2.3-1.7V5H.9a9 9 0 0 0 0 8l3-2.3Z"/><path fill="#EA4335" d="M9 3.6c1.3 0 2.5.5 3.4 1.3l2.6-2.6A9 9 0 0 0 .9 5l3 2.3C4.6 5.2 6.6 3.6 9 3.6Z"/></svg>
+          Google로 계속하기
+        </button>
+        <p class="login-or"><span>또는 이메일로</span></p>
+        <form id="account-form">
+          <label>이메일<input id="account-email" type="email" autocomplete="username" /></label>
+          <div class="login-pass">
+            <span>비밀번호</span>
+            <button id="account-forgot" type="button">비밀번호를 잊으셨나요?</button>
+          </div>
+          <label class="login-secret">
+            <input id="account-password" type="password" autocomplete="current-password" />
+            <button id="account-reveal" type="button" aria-label="비밀번호 보기">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/></svg>
+            </button>
+          </label>
+          <button id="account-in" type="submit">로그인</button>
+        </form>
+        <p class="login-switch">계정이 없으신가요? <button id="account-up" type="button">회원가입</button></p>
+        <button id="account-out" type="button" hidden>로그아웃</button>
+      </div>
+    </div>
+    <div id="characters" hidden>
+      <div class="yards-card" role="dialog" aria-label="캐릭터">
+        <div class="yards-head">
+          <b>캐릭터</b>
+          <button id="characters-close" type="button" aria-label="닫기">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17" /></svg>
+          </button>
+        </div>
+        <div id="character-face-tools">
+          <label class="character-upload">
+            얼굴 사진 올리기
+            <input id="character-face-file" type="file" accept="image/*" hidden />
+          </label>
+          <p>얼굴 사진은 머리만 바꿉니다. 올리는 동안만 바뀌고, 방을 새로고침하면 원래 캐릭터로 돌아옵니다.</p>
+        </div>
+        <div id="character-tabs">
+          <button type="button" data-tab="mine">내 캐릭터</button>
+          <button type="button" data-tab="free">무료</button>
+        </div>
+        <ul id="character-list"></ul>
+        <p id="character-note"></p>
+      </div>
+    </div>
+    <div id="yards" hidden>
+      <div class="yards-card" role="dialog" aria-label="마당">
+        <div class="yards-head">
+          <b>마당</b>
+          <button id="yards-close" type="button" aria-label="닫기">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17" /></svg>
+          </button>
+        </div>
+        <ul id="yard-list"></ul>
+        <p id="yard-note"></p>
+      </div>
+    </div>
+    <div id="passage" hidden>
+      <div class="passage-inner">
+        <div class="passage-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path class="flame" d="M12 2.4c1.5 3.4 3.4 4.8 5.6 5.5-2.5.9-4 2.6-5.6 6-1.6-3.4-3.1-5.1-5.6-6 2.2-.7 4.1-2.1 5.6-5.5Z" /></svg>
+        </div>
+        <p id="passage-kicker"></p>
+        <h2 id="passage-title"></h2>
+        <p id="passage-copy"></p>
+        <div id="passage-bar" hidden><span></span></div>
+        <p id="passage-note"></p>
+      </div>
+    </div>
     <div id="gate">
       <div class="gate-card">
         <p class="kicker" id="gate-date"></p>
         <h1>오늘은 생일</h1>
-        <p id="gate-copy">들어가기 전에 오늘을 정해요.<br />한 번 정하면 오늘은 바뀌지 않아요.</p>
         <label class="gate-name">
           <span>오늘의 이름</span>
           <input id="gate-name" type="text" maxlength="12" autocomplete="off" placeholder="오늘의 이름" />
         </label>
+        <div class="gate-name">
+          <span>생일</span>
+          <div class="gate-date-pick">
+            <div class="date-field">
+              <button id="birth-month" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="생일 월">월</button>
+              <ul id="birth-month-list" class="date-menu" hidden role="listbox"></ul>
+            </div>
+            <div class="date-field">
+              <button id="birth-day" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="생일 일">일</button>
+              <ul id="birth-day-list" class="date-menu" hidden role="listbox"></ul>
+            </div>
+          </div>
+          <p id="birth-note"></p>
+        </div>
         <div class="gate-looks">
           <span>오늘의 모습</span>
-          <div id="gate-looks"></div>
+          <button id="gate-shown" type="button" aria-expanded="false" aria-label="모습 바꾸기"></button>
+          <div id="gate-looks" hidden></div>
+          <button id="character-look" type="button">캐릭터 불러오기</button>
+        </div>
+        <div class="gate-name" id="gate-space-field" hidden>
+          <span>오늘의 공간</span>
+          <div class="date-field">
+            <button id="gate-space" type="button" aria-haspopup="listbox" aria-expanded="false">내 공간</button>
+            <ul id="gate-space-list" class="date-menu" hidden role="listbox"></ul>
+          </div>
         </div>
         <div class="gate-actions">
-          <button id="enter-birthday" type="button">오늘은 내 생일이에요</button>
-          <button id="enter-guest" type="button">축하하러 왔어요</button>
+          <button id="enter" type="button">들어가기</button>
         </div>
-        <p class="gate-note">가입은 없어요. 이름은 오늘 이 홀에서만 쓰여요.</p>
+        <button id="account-open" type="button" class="gate-account-link" aria-label="계정">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 19.2a6.5 6.5 0 0 1 13 0"/></svg>
+        </button>
       </div>
     </div>
     <section id="dock">
@@ -79,9 +227,18 @@
       </div>
     </section>
     <nav id="tabbar" aria-label="하단 메뉴">
-      <button type="button" data-tab="guide">안내</button>
-      <button type="button" data-tab="wish">축하</button>
-      <button type="button" data-tab="rooms">방</button>
+      <button type="button" data-tab="guide">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5.5h12v13H6z" /><path d="M9 9h6M9 12.5h6M9 16h3.5" /></svg>
+        <span>안내</span>
+      </button>
+      <button type="button" data-tab="wish">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5c1.2 2.4 2.2 3.6 4.2 4.2-2 .6-3 1.8-4.2 4.3-1.2-2.5-2.2-3.7-4.2-4.3C9.8 8.1 10.8 6.9 12 4.5Z" /></svg>
+        <span>축하</span>
+      </button>
+      <button type="button" data-tab="rooms">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 10.5 12 5l7 5.5V19H5z" /><path d="M10 19v-5h4v5" /></svg>
+        <span>방</span>
+      </button>
     </nav>
     <script type="module" src="/src/main.ts"></script>
   </body>

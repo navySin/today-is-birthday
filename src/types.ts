@@ -44,6 +44,48 @@ export type Occupant = {
   hair?: string;
   bowingUntil: number;
   note?: string;
+  music?: RoomMusic | null;
+};
+
+export type RoomMusicTrack = {
+  id?: string;
+  title: string;
+  url: string;
+  duration: number;
+  image?: string;
+};
+
+export type RoomFill = {
+  source: string;
+  refId: string;
+  title: string;
+  image?: string;
+  medium?: "music" | "video";
+  watchId?: string;
+};
+
+export type RoomMusic = {
+  tracks: RoomMusicTrack[];
+  startedAt: number;
+  pausedAt?: number | null;
+  stopped?: boolean;
+};
+
+export type RoomLayoutItem = {
+  id: string;
+  kind: string;
+  x: number;
+  z: number;
+  fill?: RoomFill;
+  fills?: RoomFill[];
+  /** Welcome or guide written on a whiteboard. */
+  note?: string;
+};
+
+export type RoomFacade = {
+  door: "wood" | "cream" | "red" | "green" | "navy";
+  window: boolean;
+  accent: "none" | "lamp" | "plant" | "wreath";
 };
 
 export type RoomState = {
@@ -51,12 +93,28 @@ export type RoomState = {
   title: string;
   trait: string;
   mood: Mood;
+  /** Custom rooms only. Template yard rooms stay the parlor. */
+  shell?: "parlor" | "stage" | "roof";
+  /** Custom rooms only. The owner’s door, extra window, and door ornament. */
+  facade?: RoomFacade;
   x: number;
   z: number;
   angle: number;
   occupant: Occupant | null;
   candleCount?: number;
   candles: Candle[];
+  /** PickLike space placed in the yard. Stays out of the saved template rooms. */
+  custom?: boolean;
+  layout?: RoomLayoutItem[];
+  /** Plays inside this room even before someone claims it. */
+  music?: RoomMusic | null;
+};
+
+export type WalkerFigure = {
+  body: string;
+  walk?: string;
+  sit?: string;
+  bow?: string;
 };
 
 export type Walker = {
@@ -72,14 +130,28 @@ export type Walker = {
   color: string;
   skin: string;
   hair?: string;
+  kind?: "person" | "dog" | "cat";
+  figure?: WalkerFigure | null;
+  face?: string | null;
 };
 
 export type DayRole = "birthday" | "guest";
+
+export type YardInfo = {
+  id: string;
+  name: string;
+  birthday: number;
+  empty: number;
+  users: number;
+  max: number;
+};
 
 export type HallState = {
   type: "state";
   date: string;
   yesterday: number;
+  yardId: string;
+  yards: YardInfo[];
   youId: string;
   yourName: string;
   yourLook: { id: string; color: string; skin: string; hair: string } | null;
@@ -88,14 +160,17 @@ export type HallState = {
   litRoomIds: string[];
   rooms: RoomState[];
   walkers: Walker[];
-  ack?: "bow" | "claim" | "release";
+  facePack?: Record<string, string | null>;
+  now: number;
+  ack?: "bow" | "claim" | "release" | "light";
+  ackText?: string;
   event?: { kind: "candle"; roomId: string; ownerId: string | null };
   thanks?: { fromName: string; text?: string };
 };
 
-export type RoomProp = "cake" | "sofa" | "mirror";
+export type RoomProp = "cake" | "sofa" | "mirror" | "player" | "screen" | "board";
 
 export type WorldPick =
   | { kind: "room"; id: string }
   | { kind: "ground"; x: number; z: number }
-  | { kind: "prop"; prop: RoomProp };
+  | { kind: "prop"; prop: RoomProp; id?: string };
