@@ -816,6 +816,7 @@ function connect() {
   ws.addEventListener("open", () => {
     retry = 0;
     ws.send(JSON.stringify({ type: "join", clientId: me }));
+    sendEntry();
     shareFigure();
     shareFace();
     void announceSpace();
@@ -1319,6 +1320,11 @@ async function leaveToGate() {
   passageBusy = false;
 }
 
+function sendEntry() {
+  if (!pendingEntry || socket?.readyState !== WebSocket.OPEN) return;
+  send({ type: "role", role: pendingEntry.role, name: pendingEntry.name, look: selectedLook, figure: figureShare(), face: sharedFace });
+}
+
 function enterAs(role: DayRole) {
   if (entered || pendingEntry || passageBusy) return;
   const name = cleanName(gateName?.value ?? "");
@@ -1327,15 +1333,12 @@ function enterAs(role: DayRole) {
     gateName?.focus();
     return;
   }
-  if (socket?.readyState !== WebSocket.OPEN) {
-    toast("마당에 연결하고 있어요.");
-    return;
-  }
   chosen = role;
   pendingEntry = { role, name };
   wearLook();
   beginArrival();
-  send({ type: "role", role, name, look: selectedLook, figure: figureShare(), face: sharedFace });
+  if (socket?.readyState === WebSocket.OPEN) sendEntry();
+  else if (!socket || socket.readyState === WebSocket.CLOSED) connect();
 }
 
 function figureShare() {
@@ -1786,6 +1789,7 @@ function paintLookChoices() {
 }
 
 paintLookChoices();
+wearLook();
 
 const shownLook = document.querySelector<HTMLButtonElement>("#gate-shown");
 shownLook?.addEventListener("click", (event) => {
@@ -1973,6 +1977,11 @@ function readAuthTokens(accessToken: unknown, refreshToken: unknown) {
   if (accessToken.split(".").length !== 3) return null;
   return { accessToken, refreshToken };
 }
+
+const picklikeBase = (import.meta.env.VITE_PICKLIKE_URL?.trim() || "http://127.0.0.1:3000").replace(/\/$/, "");
+let picklikeReady = false;
+let picklikeOrigin = "";
+let roomPlayRequest: { title: string; fills?: RoomFill[]; tracks?: RoomMusicTrack[] } | null = null;
 
 function postPicklike(message: object) {
   const frame = document.querySelector<HTMLIFrameElement>("#picklike-player-frame");
@@ -2562,11 +2571,6 @@ async function openYoutube(queue: { watchId: string; title: string; image?: stri
   paintYoutubeList();
   await mountYoutube(queue[0].watchId);
 }
-
-const picklikeBase = (import.meta.env.VITE_PICKLIKE_URL?.trim() || "http://127.0.0.1:3000").replace(/\/$/, "");
-let picklikeReady = false;
-let picklikeOrigin = "";
-let roomPlayRequest: { title: string; fills?: RoomFill[]; tracks?: RoomMusicTrack[] } | null = null;
 
 function picklikePage() {
   try {
